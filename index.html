@@ -5,32 +5,47 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Michel’s Vorsorgerechner</title>
 <style>
-  body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
-  h1 { text-align: center; background: #47624f; color: white; padding: 1rem; }
-  .container { max-width: 700px; margin: 2rem auto; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
-  label { display: block; margin-top: 1rem; font-weight: bold; }
-  select, input { width: 100%; padding: 0.5rem; margin-top: 0.5rem; border-radius: 5px; border: 1px solid #ccc; }
-  button { margin-top: 1.5rem; padding: 0.8rem 1.2rem; background: #47624f; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; }
-  button:hover { background: #3b5242; }
-  .result { margin-top: 2rem; background: #eef3ef; padding: 1rem; border-radius: 8px; }
-  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-  th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; }
-  th { background: #dfe6e1; }
+  body { font-family: "Segoe UI", Arial, sans-serif; background:#f6f6f6; margin:0; padding:0; color:#222; }
+  header { background:#47624f; color:white; padding:1.2rem; text-align:center; }
+  header h1 { margin:0; font-size:1.8rem; }
+  main { max-width:800px; margin:2rem auto; background:white; border-radius:12px; padding:2rem;
+         box-shadow:0 2px 10px rgba(0,0,0,0.15); }
+  p.intro { background:#eef3ef; border-left:4px solid #47624f; padding:1rem; border-radius:4px; }
+  label { display:block; margin-top:1rem; font-weight:600; }
+  input, select { width:100%; padding:0.6rem; border:1px solid #ccc; border-radius:6px; margin-top:0.3rem; }
+  button { margin-top:1.2rem; background:#47624f; color:white; border:none; border-radius:6px;
+           padding:0.8rem 1.2rem; font-size:1rem; cursor:pointer; }
+  button:hover { background:#3b5242; }
+  .result { margin-top:2rem; padding:1.5rem; background:#f3f7f4; border-radius:8px; }
+  table { width:100%; border-collapse:collapse; margin-top:1rem; }
+  th, td { border:1px solid #ccc; padding:0.5rem 0.7rem; text-align:left; }
+  th { background:#dfe6e1; }
+  footer { text-align:center; color:#666; font-size:0.9rem; margin:2rem 0; }
+  .print-btn { margin-top:1rem; background:#6a8b5f; }
+  .print-btn:hover { background:#58774f; }
 </style>
 </head>
 <body>
 
-<h1>Michel’s Vorsorgerechner</h1>
-<div class="container">
-  <p>Berechne deinen realistischen Vorrat an Wasser und Lebensmitteln – nach Michel, nicht nach Ministerium.</p>
+<header>
+  <h1>Michel’s Vorsorgerechner</h1>
+  <p>Berechne deinen realistischen Vorrat – nach Michel, nicht nach Ministerium.</p>
+</header>
 
-  <label for="persons">Anzahl Personen:</label>
+<main>
+  <p class="intro">
+    Mit diesem Rechner bestimmst du deinen persönlichen Vorrat an Wasser und Lebensmitteln.  
+    Gib die Anzahl der Personen, den Zeitraum und deinen Lebensstil an.  
+    Das Ergebnis zeigt dir Mengen, Kalorien und Wasserbedarf – realistisch, alltagstauglich und ohne Dosenparade.
+  </p>
+
+  <label for="persons">👨‍👩‍👧‍👦 Anzahl Personen:</label>
   <input type="number" id="persons" min="1" max="10" value="2">
 
-  <label for="days">Tage:</label>
+  <label for="days">📅 Tage:</label>
   <input type="number" id="days" min="1" max="60" value="14">
 
-  <label for="mode">Modus:</label>
+  <label for="mode">⚙️ Modus:</label>
   <select id="mode">
     <option value="bbk">🥫 BBK-Minimum</option>
     <option value="michel" selected>🍲 Michel-Praxiswert</option>
@@ -40,7 +55,12 @@
   <button onclick="calculate()">Berechnen</button>
 
   <div class="result" id="result"></div>
-</div>
+  <button class="print-btn" onclick="window.print()">🖨 Liste drucken</button>
+</main>
+
+<footer>
+  © 2025 Michel – Selbstversorger.blog | Version 1.1
+</footer>
 
 <script>
 function calculate() {
@@ -56,7 +76,6 @@ function calculate() {
   const totalWater = n * d * wasser;
   const totalKcal = n * d * kcal;
 
-  // Aufteilung der Kalorien in Prozent
   const food = {
     "Getreideprodukte & Mehl": 0.40,
     "Eiweißquellen (Eier, Hülsenfrüchte, Käse)": 0.20,
@@ -68,22 +87,21 @@ function calculate() {
   let rows = "";
   for (const [key, value] of Object.entries(food)) {
     const kcalGroup = totalKcal * value;
-    const kg = (kcalGroup / 2500).toFixed(1); // grob: 2500 kcal ≈ 1 kg Mischwert
+    const kg = (kcalGroup / 2500).toFixed(1);
     rows += `<tr><td>${key}</td><td>${kcalGroup.toLocaleString()} kcal</td><td>${kg} kg</td></tr>`;
   }
 
   const resultHTML = `
-    <h2>Ergebnis</h2>
+    <h2>📊 Ergebnis</h2>
     <p><strong>Personen:</strong> ${n} – <strong>Tage:</strong> ${d} – <strong>Modus:</strong> ${mode === "bbk" ? "BBK-Minimum" : mode === "michel" ? "Michel-Praxiswert" : "Selbstversorger-Deluxe"}</p>
     <table>
       <tr><th>Kategorie</th><th>Energie</th><th>Menge</th></tr>
       ${rows}
     </table>
     <p><strong>Gesamtenergie:</strong> ${totalKcal.toLocaleString()} kcal<br>
-    <strong>Wasserbedarf:</strong> ${totalWater.toLocaleString()} Liter</p>
-    <p>💡 Tipp: 1 Liter Wasser wiegt 1 kg – das spürt man beim Schleppen.</p>
+       <strong>Wasserbedarf:</strong> ${totalWater.toLocaleString()} Liter</p>
+    <p>💡 1 Liter Wasser = 1 kg Gewicht – wer das trägt, weiß, was Vorsorge bedeutet.</p>
   `;
-
   document.getElementById("result").innerHTML = resultHTML;
 }
 </script>
